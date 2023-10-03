@@ -1,0 +1,12 @@
+# name: test/sql/quack.test
+# description: test quack extension
+# group: [quack]
+
+
+
+# Require statement will ensure this test is run with this extension loaded
+require parallel_python
+
+# Confirm the extension works
+query I
+SET parallel_python_library='asdf';
