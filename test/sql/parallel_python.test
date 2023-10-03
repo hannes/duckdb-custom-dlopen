@@ -8,5 +8,11 @@
 require parallel_python
 
 # Confirm the extension works
+statement ok
+SET parallel_python_library='/opt/homebrew/opt/python@3.11/Frameworks/Python.framework/Versions/3.11/Python';
+
+
 query I
-SET parallel_python_library='asdf';
+select min(python_integer_function(generate_series::integer)) from generate_series(100);
+----
+42

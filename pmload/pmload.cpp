@@ -30,7 +30,7 @@ static void my_dyld_stub_binder() {
 
 thread_local std::vector<MyLibHandle *> loaders;
 
-static void *my_dlsym(void *lib, const char *name, bool add_underscore = true, bool recurse = true) {
+void *my_dlsym(void *lib, const char *name, bool add_underscore = true, bool recurse = true) {
 	assert(lib);
 	Diagnostics diag;
 	dyld3::MachOAnalyzer::FoundSymbol foundInfo;
@@ -93,7 +93,7 @@ struct ProgramVars {
 typedef void (*Initializer)(int argc, const char *const argv[], const char *const envp[], const char *const apple[],
                             const ProgramVars *vars);
 
-static void *my_dlopen(const char *file, int flags) {
+void *my_dlopen(const char *file, int flags) {
 
 	if (!file) {
 		// walk previous handles to find the correct loader chain

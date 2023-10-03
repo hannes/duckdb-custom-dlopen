@@ -6,8 +6,8 @@ namespace duckdb {
 
 class ParallelPythonExtension : public Extension {
 public:
-	void Load(DuckDB &db) override;
-	std::string Name() override;
+  void Load(DuckDB &db) override;
+  std::string Name() override;
 };
 
 } // namespace duckdb
