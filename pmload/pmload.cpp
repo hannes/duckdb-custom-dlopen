@@ -5,6 +5,8 @@
 #include "dyld/common/MachOAnalyzer.h"
 #include "dyld/common/ClosureFileSystemPhysical.h"
 
+#include "pmload.hpp"
+
 using namespace std::chrono;
 
 bool dyld3::MachOFile::canHavePrecomputedDlopenClosure(const char *path, void (^failureReason)(const char *)) const {
@@ -30,7 +32,7 @@ static void my_dyld_stub_binder() {
 
 thread_local std::vector<MyLibHandle *> loaders;
 
-void *my_dlsym(void *lib, const char *name, bool add_underscore = true, bool recurse = true) {
+void *pmload::my_dlsym(void *lib, const char *name, bool add_underscore, bool recurse) {
 	assert(lib);
 	Diagnostics diag;
 	dyld3::MachOAnalyzer::FoundSymbol foundInfo;
@@ -71,11 +73,11 @@ void *my_dlsym(void *lib, const char *name, bool add_underscore = true, bool rec
 static void *patched_dlopen(const char *path, int mode) {
 	// printf("%p\t%s\n", __builtin_return_address(0), path);
 
-	return my_dlopen(path, mode);
+	return pmload::my_dlopen(path, mode);
 }
 
 static void *patched_dlsym(void *handle, const char *symbol) {
-	auto res = my_dlsym(handle, symbol);
+	auto res = pmload::my_dlsym(handle, symbol);
 	// printf("dlsym(%s) at %p\n", symbol, res);
 	return res;
 }
@@ -93,7 +95,7 @@ struct ProgramVars {
 typedef void (*Initializer)(int argc, const char *const argv[], const char *const envp[], const char *const apple[],
                             const ProgramVars *vars);
 
-void *my_dlopen(const char *file, int flags) {
+void *pmload::my_dlopen(const char *file, int flags) {
 
 	if (!file) {
 		// walk previous handles to find the correct loader chain
@@ -216,7 +218,7 @@ void *my_dlopen(const char *file, int flags) {
 
 	  if (segInfo.writable()) {
 		  // printf("SEG\t%s, %p - %p\n", segInfo.segName, start, start  + size);
-		  auto mprotect_res = !mprotect((void *)start, size, PROT_WRITE);
+		  auto mprotect_res = mprotect((void *)start, size, PROT_WRITE);
 		  assert(!mprotect_res);
 	  }
 	});

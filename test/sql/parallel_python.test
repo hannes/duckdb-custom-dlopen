@@ -9,10 +9,12 @@ require parallel_python
 
 # Confirm the extension works
 statement ok
-SET parallel_python_library='/opt/homebrew/opt/python@3.11/Frameworks/Python.framework/Versions/3.11/Python';
+SET parallel_python_library='/opt/homebrew/Cellar/python@3.11/3.11.5/Frameworks/Python.framework/Versions/3.11/Python';
 
+statement ok
+create table t as from generate_series(100000000);
 
 query I
-select min(python_integer_function(generate_series::integer)) from generate_series(100);
+select min(python_integer_function('x+42', generate_series)) from t;
 ----
 42
